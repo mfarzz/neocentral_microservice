@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "neocentral-go/proto/auth";
+
+service AuthService {
+  // Validate a JWT token and return the decoded claims.
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+
+  // Get a single user by ID.
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+
+  // Get user contact info (for notification-service).
+  rpc GetUserContact(GetUserContactRequest) returns (UserContactResponse);
+
+  // Check whether a user has a specific role.
+  rpc HasRole(HasRoleRequest) returns (HasRoleResponse);
+
+  // Batch-fetch users by their IDs.
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+
+  // List users that hold a given role.
+  rpc GetUsersByRole(GetUsersByRoleRequest) returns (GetUsersByRoleResponse);
+}
+
+// ── Requests / Responses ─────────────────────────────────────────
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool   valid           = 1;
+  string user_id         = 2;
+  string identity_number = 3;
+  string full_name       = 4;
+  string email           = 5;
+  repeated string roles  = 6;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message UserResponse {
+  string id              = 1;
+  string full_name       = 2;
+  string identity_number = 3;
+  string identity_type   = 4;
+  string email           = 5;
+  string phone_number    = 6;
+  string avatar_url      = 7;
+  bool   is_verified     = 8;
+  repeated RoleInfo roles = 9;
+  StudentInfo  student   = 10;
+  LecturerInfo lecturer  = 11;
+}
+
+message RoleInfo {
+  string id     = 1;
+  string name   = 2;
+  string status = 3;
+}
+
+message StudentInfo {
+  int32  enrollment_year  = 1;
+  int32  sks_completed    = 2;
+  string status           = 3;
+  int32  current_semester = 4;
+}
+
+message LecturerInfo {
+  string science_group_id = 1;
+}
+
+message GetUserContactRequest {
+  string user_id = 1;
+}
+
+message UserContactResponse {
+  string user_id      = 1;
+  string email        = 2;
+  string phone_number = 3;
+  string full_name    = 4;
+}
+
+message HasRoleRequest {
+  string user_id   = 1;
+  string role_name = 2;
+}
+
+message HasRoleResponse {
+  bool has_role = 1;
+}
+
+message BatchGetUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message BatchGetUsersResponse {
+  repeated UserResponse users = 1;
+}
+
+message GetUsersByRoleRequest {
+  string role_name = 1;
+  int32  page      = 2;
+  int32  page_size = 3;
+}
+
+message GetUsersByRoleResponse {
+  repeated UserResponse users = 1;
+  int32 total                 = 2;
+}

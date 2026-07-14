@@ -1,0 +1,449 @@
+basePath: /
+definitions:
+  neocentral-go_auth-service_internal_dto.ChangePasswordRequest:
+    properties:
+      currentPassword:
+        type: string
+      newPassword:
+        minLength: 6
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
+  neocentral-go_auth-service_internal_dto.LecturerResponse:
+    properties:
+      id:
+        type: string
+      scienceGroupId:
+        type: string
+    type: object
+  neocentral-go_auth-service_internal_dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  neocentral-go_auth-service_internal_dto.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+      user:
+        $ref: '#/definitions/neocentral-go_auth-service_internal_dto.UserProfileResponse'
+    type: object
+  neocentral-go_auth-service_internal_dto.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  neocentral-go_auth-service_internal_dto.RequestPasswordResetRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  neocentral-go_auth-service_internal_dto.RequestVerificationRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  neocentral-go_auth-service_internal_dto.ResetPasswordRequest:
+    properties:
+      newPassword:
+        minLength: 6
+        type: string
+      token:
+        type: string
+    required:
+    - newPassword
+    - token
+    type: object
+  neocentral-go_auth-service_internal_dto.RoleResponse:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  neocentral-go_auth-service_internal_dto.StudentResponse:
+    properties:
+      enrollmentYear:
+        type: integer
+      id:
+        type: string
+      sksCompleted:
+        type: integer
+      status:
+        type: string
+    type: object
+  neocentral-go_auth-service_internal_dto.TokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  neocentral-go_auth-service_internal_dto.UserProfileResponse:
+    properties:
+      avatarUrl:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      identityNumber:
+        type: string
+      identityType:
+        type: string
+      isVerified:
+        type: boolean
+      lecturer:
+        $ref: '#/definitions/neocentral-go_auth-service_internal_dto.LecturerResponse'
+      phoneNumber:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.RoleResponse'
+        type: array
+      student:
+        $ref: '#/definitions/neocentral-go_auth-service_internal_dto.StudentResponse'
+      updatedAt:
+        type: string
+    type: object
+  neocentral-go_auth-service_internal_dto.VerifyAccountRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  neocentral-go_pkg_response.APIResponse:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8001
+info:
+  contact:
+    email: support@neocentral.com
+    name: API Support
+  description: API Documentation for NeoCentral Auth Service
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: NeoCentral Auth Service API
+  version: "1.0"
+paths:
+  /auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Changes the authenticated user's password.
+      parameters:
+      - description: Change password payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Change Password
+      tags:
+      - auth
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Initiates the password reset flow for a given email.
+      parameters:
+      - description: Email payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.RequestPasswordResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Request Password Reset
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns access and refresh tokens.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/neocentral-go_auth-service_internal_dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: User Login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Logs out the current user by invalidating their refresh token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: User Logout
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generates a new pair of access and refresh tokens using a valid
+        refresh token.
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/neocentral-go_auth-service_internal_dto.TokenResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Refresh Tokens
+      tags:
+      - auth
+  /auth/request-verification:
+    post:
+      consumes:
+      - application/json
+      description: Requests a new verification token/email for an unverified account.
+      parameters:
+      - description: Email payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.RequestVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Request Verification
+      tags:
+      - auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Resets the password using a previously generated reset token.
+      parameters:
+      - description: Reset token and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Reset Password
+      tags:
+      - auth
+  /auth/verify:
+    get:
+      consumes:
+      - application/json
+      description: Verifies a user account using a verification token (query param
+        or body).
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        type: string
+      - description: Verification token payload
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.VerifyAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Verify Account
+      tags:
+      - auth
+    post:
+      consumes:
+      - application/json
+      description: Verifies a user account using a verification token (query param
+        or body).
+      parameters:
+      - description: Verification token
+        in: query
+        name: token
+        type: string
+      - description: Verification token payload
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/neocentral-go_auth-service_internal_dto.VerifyAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      summary: Verify Account
+      tags:
+      - auth
+  /profile/me:
+    get:
+      description: Retrieves the profile information of the currently authenticated
+        user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/neocentral-go_auth-service_internal_dto.UserProfileResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/neocentral-go_pkg_response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get My Profile
+      tags:
+      - profile
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
