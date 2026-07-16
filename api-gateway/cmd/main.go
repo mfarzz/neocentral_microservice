@@ -31,6 +31,11 @@ func main() {
 		authServiceURL = "http://localhost:8001"
 	}
 
+	masterDataServiceURL := os.Getenv("MASTER_DATA_SERVICE_URL")
+	if masterDataServiceURL == "" {
+		masterDataServiceURL = "http://localhost:8002"
+	}
+
 	// 2. Setup Router & Global Middlewares
 	r := chi.NewRouter()
 
@@ -48,17 +53,14 @@ func main() {
 	})
 
 	// 4. Configure Upstream Proxies
-	// API Gateway routes all /api/v1/auth/* and /api/v1/profile/* to auth-service
+	// Auth Service → /api/v1/auth/*, /api/v1/profile/*
 	authProxy := proxy.NewReverseProxy(authServiceURL)
-	
-	// Use wildcard routing to pass the entire path to the proxy
-	// The proxy passes the path as-is to the target
 	r.Mount("/api/v1/auth", http.StripPrefix("/api/v1", authProxy))
 	r.Mount("/api/v1/profile", http.StripPrefix("/api/v1", authProxy))
-	
-	// In the future:
-	// masterProxy := proxy.NewReverseProxy(os.Getenv("MASTER_DATA_SERVICE_URL"))
-	// r.Mount("/api/v1/master", http.StripPrefix("/api/v1", masterProxy))
+
+	// Master Data Service → /api/v1/master-data/*
+	masterProxy := proxy.NewReverseProxy(masterDataServiceURL)
+	r.Mount("/api/v1/master-data", http.StripPrefix("/api/v1", masterProxy))
 
 	// 5. Start Server with Graceful Shutdown
 	srv := &http.Server{
@@ -68,7 +70,8 @@ func main() {
 
 	go func() {
 		log.Printf("🚀 API Gateway is running on http://localhost:%s", port)
-		log.Printf("   Routing /api/v1/auth -> %s/auth", authServiceURL)
+		log.Printf("   Routing /api/v1/auth        -> %s", authServiceURL)
+		log.Printf("   Routing /api/v1/master-data  -> %s", masterDataServiceURL)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ Listen error: %s\n", err)
 		}
