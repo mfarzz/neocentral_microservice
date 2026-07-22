@@ -28,3 +28,10 @@ bin/
 *~
 .DS_Store
 Thumbs.db
+
+# Compiled binaries without extension
+main
+**/main
+main.exe
+**/main.exe
+

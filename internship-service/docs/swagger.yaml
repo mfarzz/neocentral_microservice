@@ -1,0 +1,243 @@
+basePath: /api/v1/internships
+definitions:
+  model.Company:
+    properties:
+      alasan:
+        type: string
+      companyAddress:
+        type: string
+      companyName:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/model.CompanyStatus'
+      updatedAt:
+        type: string
+    type: object
+  model.CompanyStatus:
+    enum:
+    - save
+    - submit
+    - approved
+    - rejected
+    type: string
+    x-enum-varnames:
+    - CompanySave
+    - CompanySubmit
+    - CompanyApproved
+    - CompanyRejected
+  model.InternshipProposal:
+    properties:
+      academicYearId:
+        type: string
+      appLetterDateIssued:
+        type: string
+      appLetterDocId:
+        type: string
+      appLetterDocNumber:
+        type: string
+      appLetterSignedAsRoleId:
+        type: string
+      appLetterSignedById:
+        type: string
+      assignLetterDateIssued:
+        type: string
+      assignLetterDocId:
+        type: string
+      assignLetterDocNumber:
+        type: string
+      assignLetterSignedAsRoleId:
+        type: string
+      assignLetterSignedById:
+        type: string
+      company:
+        $ref: '#/definitions/model.Company'
+      companyResponseDocId:
+        type: string
+      companyResponseNotes:
+        type: string
+      coordinatorId:
+        type: string
+      createdAt:
+        type: string
+      endDateActual:
+        type: string
+      endDatePlanned:
+        type: string
+      id:
+        type: string
+      proposalDocumentId:
+        type: string
+      proposalSekdepNotes:
+        type: string
+      proposedEndDate:
+        type: string
+      proposedStartDate:
+        type: string
+      startDateActual:
+        type: string
+      startDatePlanned:
+        type: string
+      status:
+        $ref: '#/definitions/model.ProposalStatus'
+      targetCompanyId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.ProposalStatus:
+    enum:
+    - PENDING
+    - APPROVED_BY_SEKDEP
+    - REJECTED_BY_SEKDEP
+    - COMPANY_ACCEPTED
+    - COMPANY_REJECTED
+    - ASSIGNED
+    type: string
+    x-enum-varnames:
+    - ProposalPending
+    - ProposalApprovedBySekdep
+    - ProposalRejectedBySekdep
+    - ProposalCompanyAccepted
+    - ProposalCompanyRejected
+    - ProposalAssigned
+host: localhost:8005
+info:
+  contact:
+    email: support@neocentral.com
+    name: API Support
+  description: API Documentation for NeoCentral Internship Service
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: NeoCentral Internship Service API
+  version: "1.0"
+paths:
+  /pendaftaran/proposals:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all internship proposals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.InternshipProposal'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Proposals
+      tags:
+      - pendaftaran
+    post:
+      consumes:
+      - application/json
+      description: Creates a new internship proposal
+      parameters:
+      - description: Proposal Request
+        in: body
+        name: proposal
+        required: true
+        schema:
+          $ref: '#/definitions/model.InternshipProposal'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.InternshipProposal'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Proposal
+      tags:
+      - pendaftaran
+  /pendaftaran/proposals/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an internship proposal by its ID
+      parameters:
+      - description: Proposal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.InternshipProposal'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Proposal by ID
+      tags:
+      - pendaftaran
+    put:
+      consumes:
+      - application/json
+      description: Updates an internship proposal by ID
+      parameters:
+      - description: Proposal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: proposal
+        required: true
+        schema:
+          $ref: '#/definitions/model.InternshipProposal'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Proposal
+      tags:
+      - pendaftaran
+swagger: "2.0"

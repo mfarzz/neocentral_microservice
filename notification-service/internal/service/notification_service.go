@@ -28,7 +28,7 @@ func (s *NotificationService) CreateNotification(ctx context.Context, userID, ti
 	notif := &model.Notification{
 		ID:        uuid.New().String(),
 		UserID:    userID,
-		Title:     title,
+		Title:     &title,
 		Message:   &message,
 		IsRead:    false,
 		CreatedAt: time.Now(),

@@ -10,6 +10,7 @@ import (
 	"neocentral-go/notification-service/internal/repository"
 	"neocentral-go/notification-service/internal/service"
 	"neocentral-go/notification-service/pkg/broker"
+	"neocentral-go/pkg/database"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -18,7 +19,10 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	// 1. Connect to Database
+	// 1. Ensure database exists, then connect
+	if err := database.EnsureDatabaseFromDSN(cfg.DBURL); err != nil {
+		log.Fatalf("Failed to ensure database: %v", err)
+	}
 	db, err := gorm.Open(mysql.Open(cfg.DBURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)

@@ -8,7 +8,6 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: neocentral_auth
     ports:
       - "3306:3306"
     volumes:
@@ -45,7 +44,7 @@ services:
       MINIO_ROOT_PASSWORD: minioadminpassword
     ports:
       - "9000:9000" # API port
-      - "9001:9001" # Web UI port
+      - "9005:9001" # Web UI port (changed to 9005 to avoid collision with auth-service gRPC port 9001)
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -97,6 +96,76 @@ services:
     depends_on:
       - mysql
       - nats
+
+  internship-service:
+    build:
+      context: .
+      dockerfile: ./internship-service/Dockerfile
+    container_name: neocentral-internship-service
+    ports:
+      - "8005:8005"
+    environment:
+      - DB_URL=root:rootpassword@tcp(mysql:3306)/neocentral_internship?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=supersecretkey
+      - NATS_URL=nats://nats:4222
+      - DOCUMENT_SERVICE_URL=http://document-service:8003
+    depends_on:
+      - mysql
+      - nats
+      - document-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    container_name: neocentral-auth-service
+    ports:
+      - "8001:8001"
+      - "9001:9001"
+    environment:
+      - DB_URL=root:rootpassword@tcp(mysql:3306)/neocentral_auth?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=supersecretkey
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mysql
+      - nats
+
+  master-data-service:
+    build:
+      context: .
+      dockerfile: ./master-data-service/Dockerfile
+    container_name: neocentral-master-data-service
+    ports:
+      - "8002:8002"
+      - "9002:9002"
+    environment:
+      - DB_URL=root:rootpassword@tcp(mysql:3306)/neocentral_master_data?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=supersecretkey
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mysql
+      - nats
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: neocentral-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - HTTP_PORT=8080
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - MASTER_DATA_SERVICE_URL=http://master-data-service:8002
+      - DOCUMENT_SERVICE_URL=http://document-service:8003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8004
+      - INTERNSHIP_SERVICE_URL=http://internship-service:8005
+    depends_on:
+      - auth-service
+      - master-data-service
+      - document-service
+      - notification-service
+      - internship-service
 
 volumes:
   mysql_data:
