@@ -41,6 +41,11 @@ func main() {
 		documentServiceURL = "http://localhost:8003"
 	}
 
+	notificationServiceURL := os.Getenv("NOTIFICATION_SERVICE_URL")
+	if notificationServiceURL == "" {
+		notificationServiceURL = "http://localhost:8004"
+	}
+
 	// 2. Setup Router & Global Middlewares
 	r := chi.NewRouter()
 
@@ -71,6 +76,10 @@ func main() {
 	documentProxy := proxy.NewReverseProxy(documentServiceURL)
 	r.Mount("/api/v1/documents", http.StripPrefix("/api/v1", documentProxy))
 
+	// Notification Service → /api/v1/notifications/*
+	notificationProxy := proxy.NewReverseProxy(notificationServiceURL)
+	r.Mount("/api/v1/notifications", http.StripPrefix("/api/v1", notificationProxy))
+
 	// 5. Start Server with Graceful Shutdown
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -82,6 +91,7 @@ func main() {
 		log.Printf("   Routing /api/v1/auth         -> %s", authServiceURL)
 		log.Printf("   Routing /api/v1/master-data  -> %s", masterDataServiceURL)
 		log.Printf("   Routing /api/v1/documents    -> %s", documentServiceURL)
+		log.Printf("   Routing /api/v1/notifications-> %s", notificationServiceURL)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ Listen error: %s\n", err)
 		}

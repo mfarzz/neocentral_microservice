@@ -64,6 +64,40 @@ services:
       exit 0;
       "
 
+  document-service:
+    build:
+      context: .
+      dockerfile: ./document-service/Dockerfile
+    container_name: neocentral-document-service
+    ports:
+      - "8003:8003"
+    environment:
+      - DB_URL=root:rootpassword@tcp(mysql:3306)/neocentral_document?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=supersecretkey
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadminpassword
+      - MINIO_USE_SSL=false
+      - MINIO_BUCKET=neocentral-documents
+    depends_on:
+      - mysql
+      - minio-init
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./notification-service/Dockerfile
+    container_name: neocentral-notification-service
+    ports:
+      - "8004:8004"
+    environment:
+      - DB_URL=root:rootpassword@tcp(mysql:3306)/neocentral_notification?charset=utf8mb4&parseTime=True&loc=Local
+      - JWT_SECRET=supersecretkey
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mysql
+      - nats
+
 volumes:
   mysql_data:
   redis_data:
