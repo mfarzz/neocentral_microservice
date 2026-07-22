@@ -18,13 +18,13 @@ test-pkg:
 
 # ── Docker ────────────────────────────────────
 docker-up:
-	docker compose -f deployments/docker-compose.yml up -d --build
+	docker compose -f docker-compose.yml up -d --build
 
 docker-down:
-	docker compose -f deployments/docker-compose.yml down
+	docker compose -f docker-compose.yml down
 
 docker-logs:
-	docker compose -f deployments/docker-compose.yml logs -f
+	docker compose -f docker-compose.yml logs -f
 
 # ── Clean ─────────────────────────────────────
 clean:

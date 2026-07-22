@@ -53,6 +53,9 @@ func main() {
 	startTime := time.Now()
 
 	// ── MySQL (GORM) ─────────────────────────────
+	if err := database.EnsureDatabaseExists(cfg.DB); err != nil {
+		log.Fatalf("❌ Database init: %v", err)
+	}
 	db, err := database.NewMySQLConnection(cfg.DB)
 	if err != nil {
 		log.Fatalf("❌ Database: %v", err)

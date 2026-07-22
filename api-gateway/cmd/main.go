@@ -46,6 +46,11 @@ func main() {
 		notificationServiceURL = "http://localhost:8004"
 	}
 
+	internshipServiceURL := os.Getenv("INTERNSHIP_SERVICE_URL")
+	if internshipServiceURL == "" {
+		internshipServiceURL = "http://localhost:8005"
+	}
+
 	// 2. Setup Router & Global Middlewares
 	r := chi.NewRouter()
 
@@ -80,6 +85,10 @@ func main() {
 	notificationProxy := proxy.NewReverseProxy(notificationServiceURL)
 	r.Mount("/api/v1/notifications", http.StripPrefix("/api/v1", notificationProxy))
 
+	// Internship Service → /api/v1/internships/*
+	internshipProxy := proxy.NewReverseProxy(internshipServiceURL)
+	r.Mount("/api/v1/internships", http.StripPrefix("/api/v1", internshipProxy))
+
 	// 5. Start Server with Graceful Shutdown
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -92,6 +101,7 @@ func main() {
 		log.Printf("   Routing /api/v1/master-data  -> %s", masterDataServiceURL)
 		log.Printf("   Routing /api/v1/documents    -> %s", documentServiceURL)
 		log.Printf("   Routing /api/v1/notifications-> %s", notificationServiceURL)
+		log.Printf("   Routing /api/v1/internships  -> %s", internshipServiceURL)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ Listen error: %s\n", err)
 		}
