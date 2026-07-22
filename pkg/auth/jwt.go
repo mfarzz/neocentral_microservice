@@ -18,12 +18,13 @@ type JWTConfig struct {
 // Claims represents the JWT payload used by NeoCentral.
 type Claims struct {
 	jwt.RegisteredClaims
-	Email   string `json:"email,omitempty"`
-	Purpose string `json:"purpose,omitempty"` // "access", "pwdreset", "verify"
+	Email   string   `json:"email,omitempty"`
+	Roles   []string `json:"roles,omitempty"`
+	Purpose string   `json:"purpose,omitempty"` // "access", "pwdreset", "verify"
 }
 
-// GenerateAccessToken signs an access token for the given user ID and email.
-func GenerateAccessToken(userID, email string, cfg JWTConfig) (string, error) {
+// GenerateAccessToken signs an access token for the given user ID, email, and roles.
+func GenerateAccessToken(userID, email string, roles []string, cfg JWTConfig) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -32,6 +33,7 @@ func GenerateAccessToken(userID, email string, cfg JWTConfig) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(now.Add(cfg.AccessExpiry)),
 		},
 		Email: email,
+		Roles: roles,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(cfg.Secret))

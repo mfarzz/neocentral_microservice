@@ -133,7 +133,12 @@ func (s *AuthService) LoginOrRegisterWithMicrosoft(ctx context.Context, profile 
 	// Re-fetch to get updated data and relations
 	user, _ = s.userRepo.FindByID(ctx, user.ID)
 
-	accessToken, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), s.jwtCfg)
+	var roles []string
+	for _, uhr := range user.UserHasRoles {
+		roles = append(roles, uhr.Role.Name)
+	}
+
+	accessToken, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), roles, s.jwtCfg)
 	if err != nil {
 		return nil, apperror.InternalWrap("failed to generate access token", err)
 	}

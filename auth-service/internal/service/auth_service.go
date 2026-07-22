@@ -58,8 +58,14 @@ func (s *AuthService) Login(ctx context.Context, req dto.LoginRequest) (*dto.Log
 		return nil, apperror.Unauthorized("Invalid credentials")
 	}
 
+	// Extract roles for JWT payload
+	var roles []string
+	for _, uhr := range user.UserHasRoles {
+		roles = append(roles, uhr.Role.Name)
+	}
+
 	// Generate tokens
-	accessToken, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), s.jwtCfg)
+	accessToken, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), roles, s.jwtCfg)
 	if err != nil {
 		return nil, apperror.InternalWrap("failed to generate access token", err)
 	}
@@ -112,8 +118,14 @@ func (s *AuthService) RefreshTokens(ctx context.Context, refreshToken string) (*
 		return nil, apperror.Unauthorized("Invalid refresh token")
 	}
 
+	// Extract roles for JWT payload
+	var roles []string
+	for _, uhr := range user.UserHasRoles {
+		roles = append(roles, uhr.Role.Name)
+	}
+
 	// Rotate tokens
-	newAccess, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), s.jwtCfg)
+	newAccess, err := auth.GenerateAccessToken(user.ID, derefStr(user.Email), roles, s.jwtCfg)
 	if err != nil {
 		return nil, apperror.InternalWrap("failed to generate access token", err)
 	}
