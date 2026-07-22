@@ -94,3 +94,24 @@ type ThesisStatusResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
+
+// ── Internship Holiday DTOs ──────────────────
+
+type CreateInternshipHolidayRequest struct {
+	HolidayDate string  `json:"holidayDate" validate:"required"` // format: YYYY-MM-DD
+	Name        *string `json:"name"`
+}
+
+type UpdateInternshipHolidayRequest struct {
+	HolidayDate *string `json:"holidayDate"`
+	Name        *string `json:"name"`
+}
+
+type InternshipHolidayResponse struct {
+	ID          string    `json:"id"`
+	HolidayDate string    `json:"holidayDate"` // format: YYYY-MM-DD
+	Name        *string   `json:"name"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+

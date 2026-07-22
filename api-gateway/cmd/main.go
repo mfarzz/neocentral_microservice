@@ -36,6 +36,11 @@ func main() {
 		masterDataServiceURL = "http://localhost:8002"
 	}
 
+	documentServiceURL := os.Getenv("DOCUMENT_SERVICE_URL")
+	if documentServiceURL == "" {
+		documentServiceURL = "http://localhost:8003"
+	}
+
 	// 2. Setup Router & Global Middlewares
 	r := chi.NewRouter()
 
@@ -62,6 +67,10 @@ func main() {
 	masterProxy := proxy.NewReverseProxy(masterDataServiceURL)
 	r.Mount("/api/v1/master-data", http.StripPrefix("/api/v1", masterProxy))
 
+	// Document Service → /api/v1/documents/*
+	documentProxy := proxy.NewReverseProxy(documentServiceURL)
+	r.Mount("/api/v1/documents", http.StripPrefix("/api/v1", documentProxy))
+
 	// 5. Start Server with Graceful Shutdown
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -70,8 +79,9 @@ func main() {
 
 	go func() {
 		log.Printf("🚀 API Gateway is running on http://localhost:%s", port)
-		log.Printf("   Routing /api/v1/auth        -> %s", authServiceURL)
+		log.Printf("   Routing /api/v1/auth         -> %s", authServiceURL)
 		log.Printf("   Routing /api/v1/master-data  -> %s", masterDataServiceURL)
+		log.Printf("   Routing /api/v1/documents    -> %s", documentServiceURL)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("❌ Listen error: %s\n", err)
 		}

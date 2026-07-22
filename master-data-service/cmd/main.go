@@ -56,12 +56,14 @@ func main() {
 	sgRepo := repository.NewGormScienceGroupRepo(db)
 	topicRepo := repository.NewGormThesisTopicRepo(db)
 	statusRepo := repository.NewGormThesisStatusRepo(db)
+	holidayRepo := repository.NewGormInternshipHolidayRepo(db)
 
 	// ── Services ─────────────────────────────────
 	aySvc := service.NewAcademicYearService(ayRepo)
 	roomSvc := service.NewRoomService(roomRepo)
 	sgSvc := service.NewScienceGroupService(sgRepo)
 	thesisSvc := service.NewThesisTopicService(topicRepo, statusRepo)
+	holidaySvc := service.NewInternshipHolidayService(holidayRepo)
 
 	// ── REST Server (Chi) ────────────────────────
 	root := chi.NewRouter()
@@ -79,7 +81,7 @@ func main() {
 	}))
 
 	// Mount service routes
-	appRouter := handler.NewRouter(aySvc, roomSvc, sgSvc, thesisSvc, cfg.JWTSecret)
+	appRouter := handler.NewRouter(aySvc, roomSvc, sgSvc, thesisSvc, holidaySvc, cfg.JWTSecret)
 	root.Mount("/", appRouter)
 
 	// Health check
